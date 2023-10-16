@@ -3,6 +3,7 @@ package com.craftinginterpreters.lox;
 import java.util.List;
 
 public class Parser {
+    private static class ParseError extends RuntimeException {}
     private final List<Token> tokens;
     private int current = 0;
 
@@ -82,8 +83,7 @@ public class Parser {
 
         if (match(TokenType.LEFT_PAREN)) {
             Expr expr = expression();
-            // TODO: Add error handling
-            // consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+            consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
 
@@ -99,6 +99,12 @@ public class Parser {
         }
 
         return false;
+    }
+
+    private Token consume(TokenType type, String message) {
+        if (check(type)) return advance();
+
+        throw error(peek(), message);
     }
 
     private boolean check(TokenType type) {
@@ -121,6 +127,11 @@ public class Parser {
 
     private Token previous() {
         return tokens.get(current - 1);
+    }
+
+    private ParseError error(Token token, String message) {
+        Lox.error(token, message);
+        return new ParseError();
     }
 
 }
