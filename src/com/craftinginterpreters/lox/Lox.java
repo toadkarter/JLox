@@ -44,12 +44,13 @@ public class Lox {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
-        // For now, we will just print out the tokens.
-        for (Token token : tokens) {
-            System.out.println(token.toString());
-        }
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
 
-        if (hadError) System.exit(65);
+        // Stop if there was a syntax error.
+        if (hadError) return;
+
+        System.out.println(new AstPrinter().print(expression));
     }
 
     static void error(int line, String message) {
